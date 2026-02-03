@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com data:; img-src 'self' data: https:; connect-src 'self' https:;">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-link"></i>
+                <h1>SecureURL</h1>
+                <span class="pwa-indicator" id="pwaIndicator">
+                    <i class="fas fa-wifi" id="connectionStatus"></i>
+                </span>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="shorten">Shorten</button>
+                <button class="nav-btn" data-tab="analytics">Analytics</button>
+                <button class="nav-btn" data-tab="history">History</button>
+                <button class="nav-btn" data-tab="security">Security</button>
+                <button class="nav-btn" data-tab="settings">Settings</button>
+            </nav>
+            <div class="rate-limit-indicator">
+                <span id="rateLimitDisplay">10/10</span>
+                <small>URLs remaining</small>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- Shorten URL Tab -->
+            <section class="tab-content active" id="shorten-tab">
+                <div class="hero">
+                    <h2>Professional URL Shortening</h2>
+                    <p>Create secure, trackable links with advanced analytics and protection</p>
+                </div>
+
+                <div class="url-form-container">
+                    <form class="url-form" id="urlForm">
+                        <div class="input-group">
+                            <i class="fas fa-globe input-icon"></i>
+                            <input 
+                                type="url" 
+                                id="originalUrl" 
+                                placeholder="Enter your long URL here..."
+                                required
+                                class="url-input"
+                            >
+                            <div class="security-indicator" id="securityIndicator">
+                                <span class="security-status" id="securityStatus">Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="advanced-options" id="advancedOptions">
+                            <div class="input-group">
+                                <i class="fas fa-tag input-icon"></i>
+                                <input 
+                                    type="text" 
+                                    id="customAlias" 
+                                    placeholder="Custom alias (optional)"
+                                    class="alias-input"
+                                    maxlength="20"
+                                >
+                            </div>
+
+                            <div class="options-row">
+                                <div class="input-group">
+                                    <i class="fas fa-calendar input-icon"></i>
+                                    <input 
+                                        type="datetime-local" 
+                                        id="expiryDate" 
+                                        class="date-input"
+                                    >
+                                    <label for="expiryDate" class="input-label">Expiry Date</label>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="trackClicks" checked>
+                                    <label for="trackClicks">Track clicks</label>
+                                </div>
+                            </div>
+
+                            <div class="options-row">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="enablePassword">
+                                    <label for="enablePassword">Password protection</label>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="enableABTest">
+                                    <label for="enableABTest">A/B Testing</label>
+                                </div>
+                            </div>
+
+                            <div class="password-section" id="passwordSection" style="display: none;">
+                                <div class="input-group">
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <input 
+                                        type="password" 
+                                        id="urlPassword" 
+                                        placeholder="Enter password for this URL"
+                                        class="password-input"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="ab-test-section" id="abTestSection" style="display: none;">
+                                <div class="input-group">
+                                    <i class="fas fa-route input-icon"></i>
+                                    <input 
+                                        type="url" 
+                                        id="alternativeUrl" 
+                                        placeholder="Alternative URL for A/B testing"
+                                        class="url-input"
+                                    >
+                                </div>
+                                <div class="input-group">
+                                    <label for="trafficSplit">Traffic Split (% to original URL):</label>
+                                    <input type="range" id="trafficSplit" min="0" max="100" value="50" class="range-input">
+                                    <span id="trafficSplitValue">50%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="toggle-advanced" id="toggleAdvanced">
+                            <i class="fas fa-cog"></i>
+                            Advanced Options
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </button>
+
+                        <button type="submit" class="shorten-btn" id="shortenBtn">
+                            <i class="fas fa-compress-alt"></i>
+                            Shorten URL
+                        </button>
+                    </form>
+
+                    <div class="result-container" id="resultContainer">
+                        <div class="result-card">
+                            <div class="result-header">
+                                <i class="fas fa-check-circle success-icon"></i>
+                                <h3>URL Shortened Successfully!</h3>
+                            </div>
+                            
+                            <div class="url-display">
+                                <div class="url-item">
+                                    <label>Original URL:</label>
+                                    <div class="url-value original-url" id="displayOriginalUrl"></div>
+                                </div>
+                                
+                                <div class="url-item">
+                                    <label>Short URL:</label>
+                                    <div class="url-value short-url" id="displayShortUrl"></div>
+                                    <button class="copy-btn" id="copyBtn" title="Copy to clipboard">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+
+                                <div class="url-security-info" id="urlSecurityInfo">
+                                    <div class="security-badges"></div>
+                                </div>
+                            </div>
+
+                            <div class="result-actions">
+                                <button class="action-btn secondary" id="viewAnalyticsBtn">
+                                    <i class="fas fa-chart-line"></i>
+                                    View Analytics
+                                </button>
+                                <button class="action-btn primary" id="newUrlBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Shorten Another
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Malware Protection</h3>
+                        <p>Automatic malware and phishing detection</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Advanced Analytics</h3>
+                        <p>Real-time charts, heatmaps, and conversion tracking</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-lock"></i>
+                        <h3>Password Protection</h3>
+                        <p>Secure sensitive URLs with passwords</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Tab -->
+            <section class="tab-content" id="analytics-tab">
+                <div class="analytics-header">
+                    <h2>Real-time Analytics Dashboard</h2>
+                    <p>Comprehensive insights into your URL performance</p>
+                </div>
+
+                <div class="analytics-search">
+                    <div class="input-group">
+                        <i class="fas fa-search input-icon"></i>
+                        <input 
+                            type="text" 
+                            id="analyticsSearch" 
+                            placeholder="Enter short URL or alias to view analytics..."
+                            class="search-input"
+                        >
+                    </div>
+                    <button class="search-btn" id="searchAnalyticsBtn">
+                        <i class="fas fa-search"></i>
+                        View Analytics
+                    </button>
+                </div>
+
+                <div class="analytics-content" id="analyticsContent">
+                    <div class="analytics-placeholder">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>Enter a URL to view analytics</h3>
+                        <p>Search for a shortened URL above to see detailed analytics with charts and heatmaps</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section class="tab-content" id="history-tab">
+                <div class="history-header">
+                    <h2>URL History & Management</h2>
+                    <p>Manage all your shortened URLs with bulk operations</p>
+                    <div class="history-controls">
+                        <button class="clear-history-btn" id="clearHistoryBtn">
+                            <i class="fas fa-trash"></i>
+                            Clear All
+                        </button>
+                        <button class="export-btn" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            Export Data
+                        </button>
+                        <label class="import-btn">
+                            <i class="fas fa-upload"></i>
+                            Import Data
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="history-filters">
+                    <div class="filter-group">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy" class="filter-select">
+                            <option value="date">Date Created</option>
+                            <option value="clicks">Most Clicks</option>
+                            <option value="alphabetical">Alphabetical</option>
+                            <option value="conversion">Conversion Rate</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filterBy">Filter:</label>
+                        <select id="filterBy" class="filter-select">
+                            <option value="all">All URLs</option>
+                            <option value="active">Active</option>
+                            <option value="expired">Expired</option>
+                            <option value="protected">Password Protected</option>
+                            <option value="ab-test">A/B Testing</option>
+                        </select>
+                    </div>
+
+                    <div class="bulk-actions">
+                        <button class="bulk-btn" id="deleteExpiredBtn">
+                            <i class="fas fa-calendar-times"></i>
+                            Delete Expired
+                        </button>
+                        <button class="bulk-btn" id="bulkAnalyticsBtn">
+                            <i class="fas fa-chart-line"></i>
+                            Bulk Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <div class="history-list" id="historyList">
+                    <div class="history-placeholder">
+                        <i class="fas fa-history"></i>
+                        <h3>No URLs in history</h3>
+                        <p>Start shortening URLs to see them appear here</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Tab -->
+            <section class="tab-content" id="security-tab">
+                <div class="security-header">
+                    <h2>Security & Compliance</h2>
+                    <p>Monitor security threats and manage protection settings</p>
+                </div>
+
+                <div class="security-stats">
+                    <div class="security-card">
+                        <i class="fas fa-shield-virus"></i>
+                        <h3>Malware Scanned</h3>
+                        <div class="stat-number" id="malwareScanned">0</div>
+                        <p>URLs checked for threats</p>
+                    </div>
+                    <div class="security-card">
+                        <i class="fas fa-ban"></i>
+                        <h3>Threats Blocked</h3>
+                        <div class="stat-number" id="threatsBlocked">0</div>
+                        <p>Malicious URLs prevented</p>
+                    </div>
+                    <div class="security-card">
+                        <i class="fas fa-lock"></i>
+                        <h3>Protected URLs</h3>
+                        <div class="stat-number" id="protectedUrls">0</div>
+                        <p>Password-protected links</p>
+                    </div>
+                    <div class="security-card">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>Rate Limited</h3>
+                        <div class="stat-number" id="rateLimited">0</div>
+                        <p>Blocked requests today</p>
+                    </div>
+                </div>
+
+                <div class="security-settings">
+                    <div class="setting-card">
+                        <h3>Rate Limiting</h3>
+                        <p>Current limit: <span id="currentRateLimit">10</span> URLs per hour</p>
+                        <div class="rate-limit-bar">
+                            <div class="rate-limit-progress" id="rateLimitProgress"></div>
+                        </div>
+                        <small>Resets every hour</small>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>Security Scan Results</h3>
+                        <div class="scan-results" id="scanResults">
+                            <p>No recent security scans</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>Blocked Domains</h3>
+                        <div class="blocked-domains" id="blockedDomains">
+                            <p>Loading malware database...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section class="tab-content" id="settings-tab">
+                <div class="settings-header">
+                    <h2>Application Settings</h2>
+                    <p>Configure your URL shortener preferences</p>
+                </div>
+
+                <div class="settings-content">
+                    <div class="setting-card">
+                        <h3>Storage Management</h3>
+                        <div class="storage-info">
+                            <div class="storage-item">
+                                <span>URLs stored:</span>
+                                <span id="urlsCount">0</span>
+                            </div>
+                            <div class="storage-item">
+                                <span>Storage used:</span>
+                                <span id="storageUsed">0 KB</span>
+                            </div>
+                            <div class="storage-item">
+                                <span>Cache size:</span>
+                                <span id="cacheSize">0 KB</span>
+                            </div>
+                        </div>
+                        <div class="storage-actions">
+                            <button class="action-btn secondary" id="clearCacheBtn">
+                                <i class="fas fa-broom"></i>
+                                Clear Cache
+                            </button>
+                            <button class="action-btn secondary" id="optimizeStorageBtn">
+                                <i class="fas fa-compress"></i>
+                                Optimize Storage
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>Application Mode</h3>
+                        <div class="mode-selector">
+                            <label class="mode-option">
+                                <input type="radio" name="appMode" value="online" checked>
+                                <span>Online Mode</span>
+                                <small>Full features with network access</small>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="appMode" value="offline">
+                                <span>Offline Mode</span>
+                                <small>Limited features, works without internet</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>PWA Installation</h3>
+                        <div class="pwa-status" id="pwaStatus">
+                            <p>Install this app for better performance and offline access</p>
+                            <button class="action-btn primary" id="installPwaBtn">
+                                <i class="fas fa-download"></i>
+                                Install App
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h3>Data Backup & Sync</h3>
+                        <div class="backup-options">
+                            <div class="backup-item">
+                                <span>Auto-backup:</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="autoBackup" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="backup-item">
+                                <span>Last backup:</span>
+                                <span id="lastBackup">Never</span>
+                            </div>
+                        </div>
+                        <button class="action-btn primary" id="backupNowBtn">
+                            <i class="fas fa-save"></i>
+                            Backup Now
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Password Protection Modal -->
+        <div class="modal" id="passwordModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Password Required</h3>
+                </div>
+                <div class="modal-body">
+                    <p>This URL is password protected. Please enter the password to continue.</p>
+                    <div class="input-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="modalPassword" placeholder="Enter password" class="password-input">
+                    </div>
+                    <div class="modal-actions">
+                        <button class="action-btn secondary" id="cancelPassword">Cancel</button>
+                        <button class="action-btn primary" id="submitPassword">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase-service.js"></script>
+    <script src="storage-manager.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Netlify Redirects Configuration
+# This file handles routing for the URL shortener
+
+# Redirect all short codes to the redirect page
+# All paths except the main app routes will be handled by redirect.html
+/:shortcode  /redirect.html  200
+
+# Keep the main app accessible
+/  /index.html  200
+/index.html  /index.html  200
+
+# Prevent redirect for static assets
+/style.css  /style.css  200
+/script.js  /script.js  200
+/config.js  /config.js  200
+/storage-manager.js  /storage-manager.js  200
+/service-worker.js  /service-worker.js  200
+/manifest.json  /manifest.json  200
+/icons/*  /icons/:splat  200
+/favicon.ico  /favicon.ico  200
+
+# 404 page
+/*  /index.html  404
