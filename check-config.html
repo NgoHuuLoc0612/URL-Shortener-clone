@@ -1,0 +1,91 @@
+<!-- 
+CHECK CONFIG - Paste đoạn code này vào Console để check config
+Nhấn F12 → Console → Paste code dưới đây → Enter
+-->
+
+<script>
+// CHECK SUPABASE CONFIG
+console.log('=== CHECKING SUPABASE CONFIG ===');
+console.log('');
+
+if (typeof SUPABASE_CONFIG === 'undefined') {
+    console.error('❌ SUPABASE_CONFIG not found!');
+    console.log('→ File config.js chưa được load hoặc có lỗi syntax');
+} else {
+    console.log('✅ SUPABASE_CONFIG found');
+    console.log('');
+    
+    // Check URL
+    console.log('1. Checking URL...');
+    if (!SUPABASE_CONFIG.url) {
+        console.error('❌ URL is empty');
+    } else if (SUPABASE_CONFIG.url === 'YOUR_SUPABASE_URL') {
+        console.error('❌ URL chưa được thay đổi!');
+        console.log('→ Vẫn còn giá trị placeholder');
+        console.log('→ Cần sửa file config.js và deploy lại');
+    } else if (!SUPABASE_CONFIG.url.startsWith('https://')) {
+        console.error('❌ URL không hợp lệ');
+        console.log('→ URL phải bắt đầu bằng https://');
+        console.log('→ Current:', SUPABASE_CONFIG.url);
+    } else if (!SUPABASE_CONFIG.url.includes('supabase.co')) {
+        console.warn('⚠️ URL không có "supabase.co"');
+        console.log('→ Current:', SUPABASE_CONFIG.url);
+    } else {
+        console.log('✅ URL OK:', SUPABASE_CONFIG.url);
+    }
+    
+    console.log('');
+    
+    // Check anon key
+    console.log('2. Checking anon key...');
+    if (!SUPABASE_CONFIG.anonKey) {
+        console.error('❌ anon key is empty');
+    } else if (SUPABASE_CONFIG.anonKey === 'YOUR_SUPABASE_ANON_KEY') {
+        console.error('❌ anon key chưa được thay đổi!');
+        console.log('→ Vẫn còn giá trị placeholder');
+        console.log('→ Cần sửa file config.js và deploy lại');
+    } else if (!SUPABASE_CONFIG.anonKey.startsWith('eyJ')) {
+        console.error('❌ anon key không hợp lệ');
+        console.log('→ Key phải bắt đầu bằng "eyJ"');
+        console.log('→ Current:', SUPABASE_CONFIG.anonKey.substring(0, 20) + '...');
+    } else if (SUPABASE_CONFIG.anonKey.length < 100) {
+        console.warn('⚠️ anon key có vẻ ngắn quá');
+        console.log('→ Length:', SUPABASE_CONFIG.anonKey.length);
+    } else {
+        console.log('✅ anon key OK (length:', SUPABASE_CONFIG.anonKey.length + ')');
+    }
+    
+    console.log('');
+    console.log('=== SUMMARY ===');
+    
+    const urlOk = SUPABASE_CONFIG.url && 
+                  SUPABASE_CONFIG.url !== 'YOUR_SUPABASE_URL' && 
+                  SUPABASE_CONFIG.url.startsWith('https://');
+    
+    const keyOk = SUPABASE_CONFIG.anonKey && 
+                  SUPABASE_CONFIG.anonKey !== 'YOUR_SUPABASE_ANON_KEY' && 
+                  SUPABASE_CONFIG.anonKey.startsWith('eyJ') &&
+                  SUPABASE_CONFIG.anonKey.length > 100;
+    
+    if (urlOk && keyOk) {
+        console.log('✅ Config looks good!');
+        console.log('');
+        console.log('Next steps:');
+        console.log('1. Make sure file is saved (Ctrl+S)');
+        console.log('2. Deploy to Netlify (git push or drag & drop)');
+        console.log('3. Hard refresh (Ctrl+Shift+R)');
+    } else {
+        console.error('❌ Config has issues!');
+        console.log('');
+        console.log('To fix:');
+        console.log('1. Go to https://app.supabase.com');
+        console.log('2. Select your project → Settings → API');
+        console.log('3. Copy "Project URL" and "anon public" key');
+        console.log('4. Update config.js with real values');
+        console.log('5. Save and deploy');
+    }
+}
+
+console.log('');
+console.log('=== END CHECK ===');
+</script>
