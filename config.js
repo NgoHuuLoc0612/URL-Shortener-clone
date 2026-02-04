@@ -1,6 +1,6 @@
 const SUPABASE_CONFIG = {
-    url: 'https://hotytmgimnygqbigxkfr.supabase.co', // e.g., https://xxxxx.supabase.co
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdHl0bWdpbW55Z3FiaWd4a2ZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNzAzODksImV4cCI6MjA4NTc0NjM4OX0.2YFKGMY8VfA1DzgBKIRnqI3AGBdkWz0eGSsjWfeaGGM'
+    url: 'supabase-url', // e.g., https://xxxxx.supabase.co
+    anonKey: 'anon-key'
 };
 
 // Initialize Supabase client
@@ -27,3 +27,4 @@ if (typeof module !== 'undefined' && module.exports) {
     window.SUPABASE_CONFIG = SUPABASE_CONFIG;
     window.initSupabase = initSupabase;
 }
+
